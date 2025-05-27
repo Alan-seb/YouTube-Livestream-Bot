@@ -1,0 +1,216 @@
+<%- include('partials/header', { activePage: 'settings' }) %>
+
+<div class="container-fluid px-md-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Settings</h1>
+    <div>
+      <span class="badge <%= botStatus === 'running' ? 'bot-badge-running' : 'bot-badge-stopped' %> ms-2">
+        <i class="bi <%= botStatus === 'running' ? 'bi-play-circle-fill' : 'bi-stop-circle-fill' %> me-1"></i>
+        <%= botStatus.toUpperCase() %>
+      </span>
+    </div>
+  </div>
+  
+  <% if (user.role !== 'admin') { %>
+    <div class="alert alert-warning">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      You don't have permission to access this page. Please contact an administrator.
+    </div>
+  <% } else { %>
+    <% if (typeof message !== 'undefined' && message) { %>
+      <div class="alert alert-<%= messageType %> alert-dismissible fade show" role="alert">
+        <i class="bi bi-<%= messageType === 'success' ? 'check-circle-fill' : messageType === 'danger' ? 'exclamation-triangle-fill' : 'info-circle-fill' %> me-2"></i>
+        <%= message %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% } %>
+    
+    <div class="row g-4 mb-4">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Livestream Configuration</h5>
+            <span class="badge bg-danger px-3 py-2">
+              <i class="bi bi-youtube me-1"></i>YouTube
+            </span>
+          </div>
+          <div class="card-body">
+            <form action="/update-stream" method="post">
+              <div class="mb-4">
+                <label for="liveStreamUrl" class="form-label">YouTube Livestream URL</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-link-45deg"></i>
+                  </span>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    id="liveStreamUrl" 
+                    name="liveStreamUrl" 
+                    placeholder="https://www.youtube.com/watch?v=..." 
+                    value="<%= typeof settings !== 'undefined' && settings.liveStreamUrl ? settings.liveStreamUrl : '' %>"
+                    required
+                  >
+                </div>
+                <div class="form-text mt-2">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Enter the full YouTube livestream URL. The bot will monitor this stream.
+                </div>
+                <div class="form-text mt-2">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  <strong>Important:</strong> The stream must be active (currently live) and have live chat enabled. Only provide the URL when the stream is already running.
+                </div>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <button type="submit" class="btn btn-success px-4 py-2">
+                  <i class="bi bi-save me-2"></i>Save Stream URL
+                </button>
+                <% if (typeof settings !== 'undefined' && settings.liveStreamUrl) { %>
+                  <a href="/test-video/<%= encodeURIComponent(settings.liveStreamUrl) %>" class="btn btn-outline-info px-4 py-2" target="_blank">
+                    <i class="bi bi-bug me-2"></i>Test URL Connection
+                  </a>
+                <% } %>
+              </div>
+            </form>
+            
+            <% if (settings.liveStreamUrl) { %>
+              <div class="mt-3">
+                <form action="/start-bot" method="post">
+                  <div class="d-grid">
+                    <button type="submit" class="btn btn-primary px-4 py-2">
+                      <i class="bi bi-play-circle-fill me-2"></i>Start Bot
+                    </button>
+                  </div>
+                </form>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Bot Controls</h5>
+            <span class="badge bg-primary px-3 py-2">
+              <i class="bi bi-robot me-1"></i>Controls
+            </span>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-4 p-3 rounded" style="background-color: rgba(255,255,255,0.05);">
+              <div class="me-3">
+                <span class="badge <%= botStatus === 'running' ? 'bot-badge-running' : 'bot-badge-stopped' %> p-2">
+                  <i class="bi <%= botStatus === 'running' ? 'bi-play-circle-fill' : 'bi-stop-circle-fill' %>"></i>
+                </span>
+              </div>
+              <div>
+                <h6 class="mb-0">Current Status</h6>
+                <p class="text-<%= botStatus === 'running' ? 'success' : 'danger' %> mb-0">
+                  <strong><%= botStatus.toUpperCase() %></strong>
+                </p>
+              </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+              <% if (botStatus === 'running') { %>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <form action="/stop-bot" method="post">
+                      <div class="d-grid">
+                        <button type="submit" class="btn btn-danger px-4 py-2">
+                          <i class="bi bi-stop-circle-fill me-2"></i>Stop Bot
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="col-6">
+                    <form action="/restart-bot" method="post">
+                      <div class="d-grid">
+                        <button type="submit" class="btn btn-secondary px-4 py-2">
+                          <i class="bi bi-arrow-repeat me-2"></i>Restart
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              <% } else { %>
+                <div class="d-grid">
+                  <button type="button" class="btn btn-secondary px-4 py-2" disabled>
+                    <i class="bi bi-play-circle-fill me-2"></i>Enter URL Above to Start
+                  </button>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Advanced Settings</h5>
+            <span class="badge bg-warning px-3 py-2">
+              <i class="bi bi-gear-wide-connected me-1"></i>Configuration
+            </span>
+          </div>
+          <div class="card-body">
+            <form action="/settings/update-advanced" method="post">
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label for="pointsPerMessage" class="form-label">Points Per Message</label>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="bi bi-trophy"></i>
+                    </span>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      id="pointsPerMessage" 
+                      name="pointsPerMessage" 
+                      min="1" 
+                      max="100" 
+                      value="1"
+                    >
+                  </div>
+                  <div class="form-text mt-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Points awarded for each chat message
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="commandPrefix" class="form-label">Command Prefix</label>
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="bi bi-terminal"></i>
+                    </span>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="commandPrefix" 
+                      name="commandPrefix" 
+                      value="!"
+                      maxlength="3"
+                    >
+                  </div>
+                  <div class="form-text mt-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Character used before commands (e.g., !help)
+                  </div>
+                </div>
+              </div>
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary px-4 py-2">
+                  <i class="bi bi-save me-2"></i>Save Advanced Settings
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %> 

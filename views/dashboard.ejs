@@ -1,0 +1,192 @@
+<%- include('partials/header', { activePage: 'dashboard' }) %>
+
+<div class="container-fluid px-md-4">
+  <% if (typeof message !== 'undefined' && message) { %>
+    <div class="alert alert-<%= messageType %> alert-dismissible fade show" role="alert">
+      <i class="bi bi-<%= messageType === 'success' ? 'check-circle-fill' : messageType === 'danger' ? 'exclamation-triangle-fill' : 'info-circle-fill' %> me-2"></i>
+      <%= message %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Dashboard</h1>
+    <div>
+      <span class="badge <%= botStatus === 'running' ? 'bot-badge-running' : 'bot-badge-stopped' %> ms-2">
+        <i class="bi <%= botStatus === 'running' ? 'bi-play-circle-fill' : 'bi-stop-circle-fill' %> me-1"></i>
+        <%= botStatus.toUpperCase() %>
+      </span>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body d-flex gap-3">
+          <% if (user.role === 'admin') { %>
+            <a href="/settings" class="btn btn-primary px-4">
+              <i class="bi bi-gear-fill me-2"></i> Settings
+            </a>
+            <% if (botStatus === 'running') { %>
+              <form action="/stop-bot" method="post">
+                <button type="submit" class="btn btn-danger px-4">
+                  <i class="bi bi-stop-circle-fill me-2"></i> Stop Bot
+                </button>
+              </form>
+            <% } else { %>
+              <a href="/settings" class="btn btn-success px-4">
+                <i class="bi bi-play-circle-fill me-2"></i> Start Bot
+              </a>
+            <% } %>
+          <% } %>
+          <a href="/analytics" class="btn btn-outline-primary px-4">
+            <i class="bi bi-graph-up me-2"></i> Analytics
+          </a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Top Users Leaderboard</h5>
+          <span class="badge bg-secondary"><%= topUsers ? topUsers.length : 0 %> Users</span>
+        </div>
+        <div class="card-body p-0">
+          <% if (topUsers && topUsers.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Points</th>
+                    <th scope="col" class="d-none d-md-table-cell">Messages</th>
+                    <th scope="col" class="d-none d-md-table-cell">Last Seen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% topUsers.forEach((user, index) => { %>
+                    <tr>
+                      <td>
+                        <% if (index === 0) { %>
+                          <span class="badge bg-warning text-dark">1st</span>
+                        <% } else if (index === 1) { %>
+                          <span class="badge bg-secondary">2nd</span>
+                        <% } else if (index === 2) { %>
+                          <span class="badge" style="background-color: #cd7f32;">3rd</span>
+                        <% } else { %>
+                          <%= index + 1 %>
+                        <% } %>
+                      </td>
+                      <td><%= user.name %></td>
+                      <td><strong class="text-<%= index < 3 ? 'warning' : 'primary' %>"><%= user.points %></strong></td>
+                      <td class="d-none d-md-table-cell"><%= user.messages %></td>
+                      <td class="d-none d-md-table-cell"><small><%= new Date(user.lastSeen).toLocaleString() %></small></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="alert alert-info m-3">
+              <i class="bi bi-info-circle me-2"></i>
+              No user data available yet. The leaderboard will populate as users interact with the bot.
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-12">
+          <div class="card metric-card">
+            <div class="card-body">
+              <div class="metric-icon">
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <div class="metric-label">Total Users</div>
+              <div class="metric-value"><%= topUsers ? topUsers.length : 0 %></div>
+              <div class="chart-container">
+                <div class="chart-bar" style="height: 60%; left: 10%;"></div>
+                <div class="chart-bar" style="height: 40%; left: 20%;"></div>
+                <div class="chart-bar" style="height: 80%; left: 30%;"></div>
+                <div class="chart-bar" style="height: 50%; left: 40%;"></div>
+                <div class="chart-bar" style="height: 70%; left: 50%;"></div>
+                <div class="chart-bar" style="height: 90%; left: 60%;"></div>
+                <div class="chart-bar" style="height: 65%; left: 70%;"></div>
+                <div class="chart-bar" style="height: 75%; left: 80%;"></div>
+                <div class="chart-bar" style="height: 85%; left: 90%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-12">
+          <div class="card metric-card">
+            <div class="card-body">
+              <div class="metric-icon">
+                <i class="bi bi-chat-dots-fill"></i>
+              </div>
+              <div class="metric-label">Total Messages</div>
+              <div class="metric-value"><%= topUsers ? topUsers.reduce((sum, user) => sum + user.messages, 0) : 0 %></div>
+              <div class="chart-container">
+                <div class="chart-bar" style="height: 30%; left: 10%;"></div>
+                <div class="chart-bar" style="height: 60%; left: 20%;"></div>
+                <div class="chart-bar" style="height: 40%; left: 30%;"></div>
+                <div class="chart-bar" style="height: 70%; left: 40%;"></div>
+                <div class="chart-bar" style="height: 55%; left: 50%;"></div>
+                <div class="chart-bar" style="height: 80%; left: 60%;"></div>
+                <div class="chart-bar" style="height: 90%; left: 70%;"></div>
+                <div class="chart-bar" style="height: 75%; left: 80%;"></div>
+                <div class="chart-bar" style="height: 65%; left: 90%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-12">
+          <div class="card metric-card">
+            <div class="card-body">
+              <div class="metric-icon">
+                <i class="bi bi-trophy-fill"></i>
+              </div>
+              <div class="metric-label">Total Points</div>
+              <div class="metric-value"><%= topUsers ? topUsers.reduce((sum, user) => sum + user.points, 0) : 0 %></div>
+              <div class="chart-container">
+                <div class="chart-bar" style="height: 50%; left: 10%;"></div>
+                <div class="chart-bar" style="height: 70%; left: 20%;"></div>
+                <div class="chart-bar" style="height: 30%; left: 30%;"></div>
+                <div class="chart-bar" style="height: 60%; left: 40%;"></div>
+                <div class="chart-bar" style="height: 80%; left: 50%;"></div>
+                <div class="chart-bar" style="height: 50%; left: 60%;"></div>
+                <div class="chart-bar" style="height: 70%; left: 70%;"></div>
+                <div class="chart-bar" style="height: 90%; left: 80%;"></div>
+                <div class="chart-bar" style="height: 60%; left: 90%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-12">
+          <div class="card metric-card">
+            <div class="card-body">
+              <div class="metric-icon">
+                <i class="bi bi-lightning-charge-fill"></i>
+              </div>
+              <div class="metric-label">Bot Uptime</div>
+              <div class="metric-value"><%= botStatus === 'running' ? '100%' : '0%' %></div>
+              <div class="chart-container">
+                <div class="chart-bar" style="height: <%= botStatus === 'running' ? '100' : '0' %>%; left: 50%; width: 12px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %> 

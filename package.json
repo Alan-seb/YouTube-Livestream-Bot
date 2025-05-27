@@ -1,0 +1,43 @@
+{
+  "name": "youtube-livestream-bot",
+  "version": "1.0.0",
+  "description": "A Node.js bot for interacting with YouTube livestream chats with dashboard",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dashboard": "node dashboardApp.js",
+    "dev:bot": "nodemon index.js",
+    "dev:dashboard": "nodemon dashboardApp.js",
+    "auth": "node auth.js",
+    "oauth": "node oauth.js",
+    "control": "node start.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "youtube",
+    "livestream",
+    "bot",
+    "chat",
+    "points",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.9",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "google-auth-library": "^9.15.1",
+    "googleapis": "^148.0.0",
+    "open": "^10.1.0",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "server-destroy": "^1.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
